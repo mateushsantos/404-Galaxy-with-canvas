@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head lang="pt-BR">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Galaxy</title>
+    <link href="https://fonts.googleapis.com/css?family=Rubik:300" rel="stylesheet">
+    <style media="screen">
+      html, body {
+        width:  100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      #canvas {
+        margin: 0;
+        padding: 0;
+      }
+
+      .text {
+        font-family: "Montserrat",sans-serif;
+        position: absolute;
+        color: #FFF;
+        top: 25%;
+        left: 50%;
+        font-size: 120px;
+        margin: 0;
+        width: 150px;
+        opacity: 0;
+        transition: opacity 2s ease-in-out
+      }
+
+      .notfound-text {
+        font-family: "Montserrat",sans-serif;
+        position: absolute;
+        color: #FFF;
+        top: 20%;
+        right: 50%;
+        font-size: 330px;
+        margin: 0;
+        opacity: 0;
+        transition: opacity 1.7s ease-in-out
+      }
+
+      .visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <h1 class="notfound-text">404</h1>
+    <h1 class="text">NOT FOUND</h1>
+    <script type="text/javascript">
+      (function () {
+
+        const randomDirection = () => {
+          const magicNum = starsQtt/20000
+          return Math.round(Math.random()) == 0 ? -magicNum : magicNum
+        }
+
+        const checkIfIsOnCanvas = (canvasSize, star, stepSize) => {
+          if((npc.x + stepSize) < 0) {
+            npc.x = canvasSize.x - (npc.x + stepSize);
+          }
+          else if((npc.x + stepSize) > canvasSize.x) {
+              npc.x = (npc.x + stepSize) - canvasSize.x;
+          }
+          else {
+            npc.x += stepSize * rand;
+          }
+        }
+
+        const addRandomPointInCanvasToPath = (path, isFirstPath) => {
+          if(isFirstPath)
+            return {
+              main: { x: Math.round(Math.random() * (canvasSize.x - 1)), y: Math.round(Math.random() * (canvasSize.x - 1)), xDirection: randomDirection(), yDirection: randomDirection()},
+              items: [{ x: Math.round(Math.random() * (canvasSize.x - 1)), y: Math.round(Math.random() * (canvasSize.x - 1)) }]
+            }
+
+            if(path.items.length > 600) {
+              path.items = []
+              const xDirection = randomDirection()
+              const yDirection = randomDirection()
+              path.main = { x: path.main.x+xDirection, y: path.main.y+yDirection, xDirection, yDirection }
+              path.items.push(path.main)
+              return path;
+            }
+            else {
+              const { xDirection, yDirection } = path.main
+              path.main = { x: path.main.x+xDirection, y: path.main.y+yDirection, xDirection, yDirection  }
+              path.items.push(path.main)
+              return path
+            }
+
+        }
+
+        const renderStars = (stars, ctx) => {
+          stars.map((star) => {
+            const path = addRandomPointInCanvasToPath(star.path, false);
+            const { main } = path
+            var grd = ctx.createRadialGradient(main.x, main.y, star.size, main.x, main.y, ((star.size || 1)/1.75));
+            grd.addColorStop(0,"#000");
+            grd.addColorStop(1, star.color || "#FFF");
+            ctx.fillStyle = grd;
+            ctx.beginPath();
+            ctx.arc(main.x, main.y, star.size || 1, 0, Math.PI*2, true);
+            ctx.closePath();
+            ctx.fill();
+          });
+        }
+
+        var canvas = document.getElementById('canvas')
+        var ctx = canvas.getContext('2d')
+        ctx.canvas.width  = window.innerWidth;
+        ctx.canvas.height = window.innerHeight;
+
+        var canvasSize = {x: window.innerWidth, y: window.innerHeight};
+
+        const starsQtt = 2000
+        const smallStars = starsQtt*0.8
+        const mediumStars = starsQtt*0.1
+        const largeStars = starsQtt*0.1
+
+        const FRAME = 1000 / 60;
+        const stepSize = 5;
+        var npcs = [];
+        var direction = { positive: false, times: 0 }
+
+        for(var i = 0; i < starsQtt; i++) {
+          var path = addRandomPointInCanvasToPath(null, true);
+
+          var size = i < smallStars ? 1 : smallStars-i < mediumStars ? 1.2 : 1.5
+
+          npcs.push({color: "#FFF", size: size, path: path});
+        }
+
+        setInterval(() => {
+          ctx.fillStyle="#000";
+          ctx.canvas.width  = window.innerWidth;
+          ctx.canvas.height = window.innerHeight;
+          ctx.fillRect(0, 0, canvasSize.x, canvasSize.y);
+
+          renderStars(npcs, ctx);
+        }, FRAME);
+
+        var showText = setInterval(() => {
+            var notFindText = document.querySelector('.notfound-text')
+            var text  = document.querySelector('.text')
+            notFindText.classList.add('visible')
+            text.classList.add('visible')
+            clearInterval(showText)
+        }, 500)
+
+        })();
+    </script>
+  </body>
+</html>
