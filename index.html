@@ -144,11 +144,13 @@
         }
 
         var canvasSize = {x: window.outerWidth, y: window.outerHeight};
-        const starsQtt = 2000
+        const starsQtt = 3000
         const smallStars = starsQtt*0.8
         const mediumStars = starsQtt*0.1
         const largeStars = starsQtt*0.1
-
+        const smallStarSize = 1
+        const mediumStarSize = 1.2
+        const largeStarSize = 1.5
         const FRAME = 1000 / 60;
         const stepSize = 5;
         var npcs = [];
@@ -157,7 +159,7 @@
         for(var i = 0; i < starsQtt; i++) {
           var path = addRandomPointInCanvasToPath(null, true);
 
-          var size = i < smallStars ? 1 : smallStars-i < mediumStars ? 1.2 : 1.5
+          var size = i < smallStars ? smallStarSize : smallStars-i < mediumStars ? mediumStarSize : largeStarSize
 
           npcs.push({color: "#FFF", size: size, path: path});
         }
