@@ -44,6 +44,24 @@
         transition: opacity 1.7s ease-in-out
       }
 
+      @media(max-width: 800px) {
+        .text, .notfound-text {
+          left: 50%;
+          right: initial;
+          transform: translateX(-50%);
+          width: auto;
+        }
+        .notfound-text {
+          top: 0;
+          transform: translate(-50%, 100%);
+        }
+
+         .text {
+          bottom: 0;
+          transform: translate(-50%, -100%);
+        }
+      }
+
       .visible {
         opacity: 1;
       }
@@ -55,11 +73,24 @@
     <h1 class="text">NOT FOUND</h1>
     <script type="text/javascript">
       (function () {
-
         const randomDirection = () => {
           const magicNum = starsQtt/20000
           return Math.round(Math.random()) == 0 ? -magicNum : magicNum
         }
+
+        const onResize = () => {
+          npcs = []
+
+          for(var i = 0; i < starsQtt; i++) {
+            var path = addRandomPointInCanvasToPath(null, true);
+
+            var size = i < smallStars ? 1 : smallStars-i < mediumStars ? 1.2 : 1.5
+
+            npcs.push({color: "#FFF", size: size, path: path});
+          }
+        }
+
+        window.onresize = onResize
 
         const checkIfIsOnCanvas = (canvasSize, star, stepSize) => {
           if((npc.x + stepSize) < 0) {
@@ -112,13 +143,7 @@
           });
         }
 
-        var canvas = document.getElementById('canvas')
-        var ctx = canvas.getContext('2d')
-        ctx.canvas.width  = window.innerWidth;
-        ctx.canvas.height = window.innerHeight;
-
-        var canvasSize = {x: window.innerWidth, y: window.innerHeight};
-
+        var canvasSize = {x: window.outerWidth, y: window.outerHeight};
         const starsQtt = 2000
         const smallStars = starsQtt*0.8
         const mediumStars = starsQtt*0.1
@@ -138,9 +163,11 @@
         }
 
         setInterval(() => {
-          ctx.fillStyle="#000";
-          ctx.canvas.width  = window.innerWidth;
-          ctx.canvas.height = window.innerHeight;
+          var canvas = document.getElementById('canvas')
+          var ctx = canvas.getContext('2d')
+          canvasSize = {x: window.outerWidth, y: window.outerHeight}
+          canvas.width  = canvasSize.x;
+          canvas.height = canvasSize.y;
           ctx.fillRect(0, 0, canvasSize.x, canvasSize.y);
 
           renderStars(npcs, ctx);
