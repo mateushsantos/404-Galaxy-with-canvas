@@ -74,8 +74,8 @@
     <script type="text/javascript">
       (function () {
         const randomDirection = () => {
-          const magicNum = starsQtt/20000
-          return Math.round(Math.random()) == 0 ? -magicNum : magicNum
+          const magicNum = starsQtt/100000
+          return (Math.round(Math.random()) == 0 ? -speed.slow : speed.slow)
         }
 
         const onResize = () => {
@@ -128,19 +128,14 @@
 
         }
 
-        const renderStars = (stars, ctx) => {
-          stars.map((star) => {
-            const path = addRandomPointInCanvasToPath(star.path, false);
-            const { main } = path
-            var grd = ctx.createRadialGradient(main.x, main.y, star.size, main.x, main.y, ((star.size || 1)/1.75));
-            grd.addColorStop(0,"#000");
-            grd.addColorStop(1, star.color || "#FFF");
-            ctx.fillStyle = grd;
-            ctx.beginPath();
-            ctx.arc(main.x, main.y, star.size || 1, 0, Math.PI*2, true);
-            ctx.closePath();
-            ctx.fill();
-          });
+        const renderStar = (star, ctx) => {
+          const path = addRandomPointInCanvasToPath(star.path, false);
+          const { main } = path
+          ctx.fillStyle = 'white';
+          ctx.beginPath();
+          ctx.arc(main.x, main.y, star.size || 1, 0, Math.PI*2, true);
+          ctx.closePath();
+          ctx.fill();
         }
 
         var canvasSize = {x: window.outerWidth, y: window.outerHeight};
@@ -153,6 +148,13 @@
         const largeStarSize = 1.5
         const FRAME = 1000 / 60;
         const stepSize = 5;
+        const speed = {
+          slowest: 0.01,
+          slow: 0.02,
+          normal: 0.03,
+          fast: 0.04,
+          fastest: 0.05
+        }
         var npcs = [];
         var direction = { positive: false, times: 0 }
 
@@ -164,7 +166,7 @@
           npcs.push({color: "#FFF", size: size, path: path});
         }
 
-        setInterval(() => {
+        const animate = () => {
           var canvas = document.getElementById('canvas')
           var ctx = canvas.getContext('2d')
           canvasSize = {x: window.outerWidth, y: window.outerHeight}
@@ -172,8 +174,14 @@
           canvas.height = canvasSize.y;
           ctx.fillRect(0, 0, canvasSize.x, canvasSize.y);
 
-          renderStars(npcs, ctx);
-        }, FRAME);
+          npcs.map((npc) => {
+            renderStar(npc, ctx);
+          })
+
+          requestAnimationFrame(animate)
+        }
+
+        requestAnimationFrame(animate)
 
         var showText = setInterval(() => {
             var notFindText = document.querySelector('.notfound-text')
